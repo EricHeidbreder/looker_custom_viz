@@ -44,6 +44,8 @@
        // append the svg object to the body of the page
        // append a 'group' element to 'svg'
        // moves the 'group' element to the top left margin
+
+       // Note that d3.select() needs to reference '#vis' because that's what Looker is going to call the div that contains the visualization
        element.innerHTML = ""
         var svg = d3.select("#vis").append("svg")
         .attr("width", width + margin.left + margin.right)
