@@ -5,6 +5,26 @@
  *  - Example Visualizations - https://github.com/looker/custom_visualizations_v2/tree/master/src/examples
  **/
 
+ function ColorLuminance(hex, lum) {
+
+	// validate hex string
+	hex = String(hex).replace(/[^0-9a-f]/gi, '');
+	if (hex.length < 6) {
+		hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+	}
+	lum = lum || 0;
+
+	// convert to decimal and change luminosity
+	var rgb = "#", c, i;
+	for (i = 0; i < 3; i++) {
+		c = parseInt(hex.substr(i*2,2), 16);
+		c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+		rgb += ("00"+c).substr(c.length);
+	}
+
+	return rgb;
+}
+
  const visObject = {
     /**
      * Configuration options for your visualization. In Looker, these show up in the vis editor
@@ -102,6 +122,7 @@
             .attr("cy", function(d) { return y(d.firstMeas); })
             .attr("r", "4")
             .style("fill", config.point_color)
+            .style("stroke", ColorLuminance(config.point_color, -0.5))
         
            doneRendering()
        }
