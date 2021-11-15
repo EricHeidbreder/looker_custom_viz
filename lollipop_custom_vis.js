@@ -120,10 +120,10 @@
             .append("circle")
             .attr("cx", function(d) { return x(d.firstDim); })
             .attr("cy", function(d) { return y(d.firstMeas); })
-            .attr("r", "4")
+            .attr("r", "5")
             .style("fill", config.point_color)
             .style("stroke", ColorLuminance(config.point_color, -0.5))
-            .style("stroke-width", 5)
+            .style("stroke-width", 4)
         
            doneRendering()
        }
