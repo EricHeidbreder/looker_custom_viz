@@ -123,6 +123,7 @@
             .attr("r", "4")
             .style("fill", config.point_color)
             .style("stroke", ColorLuminance(config.point_color, -0.5))
+            .style("stroke-width", 5)
         
            doneRendering()
        }
