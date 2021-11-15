@@ -122,8 +122,8 @@
             .attr("cy", function(d) { return y(d.firstMeas); })
             .attr("r", "5")
             .style("fill", config.point_color)
-            .style("stroke", ColorLuminance(config.point_color, -0.5))
-            .style("stroke-width", 4)
+            .style("stroke", ColorLuminance(config.point_color, -0.2))
+            .style("stroke-width", 2)
         
            doneRendering()
        }
