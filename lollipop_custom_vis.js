@@ -11,12 +11,14 @@
      * panel but here, you can just manually set your default values in the code.
      **/
      options: {
-       point_color: {
+        id: 'lollipop',
+        label: 'Lollipop Chart',
+        point_color: {
            type: "string",
            display: "color",
            label: "Point Color",
            default: "#69b3a2"
-       }
+        }
      },
     
     /**
