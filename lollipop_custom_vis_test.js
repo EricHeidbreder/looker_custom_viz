@@ -25,13 +25,6 @@
 	return rgb;
 }
 
-function addButton(measureIndex) {
-    var button = document.createElement("button");
-    button.value = measureIndex;
-  	console.log(measureIndex);
-		// button.onclick = console.log(measureIndex);
-}
-
  const visObject = {
     /**
      * Configuration options for your visualization. In Looker, these show up in the vis editor
@@ -65,6 +58,44 @@ function addButton(measureIndex) {
      **/
    
        updateAsync: function(data, element, config, queryResponse, details, doneRendering){
+         var buttonDiv = document.createElement("div");
+         var body = document.getElementsByTagName("body")[0];
+         var measures = queryResponse.fields.measures;
+         
+         function add(measureName, index) {
+           
+           // 1. Create the button
+           var button = document.createElement("button");
+           button.id = `${measureName.split('.')[0]} ${measureName.split('.')[1]}`;
+           button.className = "button";
+           button.innerHTML = `${measureName.split('.')[0].replace(/^\w/, (c) => c.toUpperCase())} ${measureName.split('.')[1].replace(/^\w/, (c) => c.toUpperCase())}`;
+           buttonDiv.appendChild(button);
+
+            // 3. Add event handler
+           button.addEventListener ("click", function() {
+             updateMeasureIndex(measureName, index)
+           });
+          }
+
+         for (i=0; i < measures.length; i++) {
+           add(measures[i].name, i);
+         }
+         
+         body.appendChild(buttonDiv);
+
+         var measureToPass;
+         var measureIndex = 1;
+
+         function updateMeasureIndex(newMeasureToPass, i) {
+           measureToPass = newMeasureToPass;
+           measureIndex = i
+           console.log(measureToPass, measureIndex);
+           return measureIndex;
+         }
+         
+         async function updateMainVis() {
+           updateMeasureIndex(measureToPass, measureIndex);
+         }
          // set the dimensions and margins of the graph
          var margin = {top: 10, right: 30, bottom: 60, left: 40},
              width = window.innerWidth,
@@ -76,9 +107,6 @@ function addButton(measureIndex) {
 
          // Note that d3.select() needs to reference '#vis' because that's what Looker is going to call the div that contains the visualization
          element.innerHTML = ""
-         var buttonDiv = document.createElement("div")
-         buttonDiv.id = 'button-div'
-         buttonDiv.append(addButton(0))
           var svg = d3.select("#vis").append("svg")
           .attr("width", width + margin.left + margin.right)
           .attr("height", height + margin.top + margin.bottom)
@@ -87,21 +115,24 @@ function addButton(measureIndex) {
                 "translate(" + margin.left + "," + margin.top + ")");
 
           formattedData = []
-         
-         var measureIndex = 0;
 
-          // format the data
+          // Format the data with dynamic key names based on the data
           data.forEach(function(d) {
-              formattedData.push({
-              firstDim: d[queryResponse.fields.dimensions[0].name]['value'],
-              firstMeas: d[queryResponse.fields.measures[measureIndex].name]['value']
-              });
+            var temp_obj = {}
+            Object.keys(data[0]).forEach(function(k) {
+              temp_obj[k] = d[k]["value"]
+            });
+            formattedData.push(temp_obj)
           });
+
+          var formattedDataKeys = Object.keys(formattedData[0]);    
+          var firstDim = formattedDataKeys[0]
+          var firstMeas = formattedDataKeys[2]
 
           // X axis
           var x = d3.scaleBand()
               .range([ 0, width ])
-              .domain(formattedData.map(function(d) { return d.firstDim; }))
+              .domain(formattedData.map(function(d) { return d[`${formattedDataKeys[measureIndex]}`]; }))
               .padding(1);
           svg.append("g")
               .attr("transform", "translate(0," + height + ")")
@@ -121,8 +152,8 @@ function addButton(measureIndex) {
               .data(formattedData)
               .enter()
               .append("line")
-              .attr("x1", function(d) { return x(d.firstDim); })
-              .attr("x2", function(d) { return x(d.firstDim); })
+              .attr("x1", function(d) { return x(d[`${formattedDataKeys[measureIndex]}`]); })
+              .attr("x2", function(d) { return x(d[`${formattedDataKeys[measureIndex]}`]); })
               .attr("y1", function(d) { return y(d.firstMeas); })
               .attr("y2", y(0))
               .attr("stroke", "grey")
@@ -132,7 +163,7 @@ function addButton(measureIndex) {
               .data(formattedData)
               .enter()
               .append("circle")
-              .attr("cx", function(d) { return x(d.firstDim); })
+              .attr("cx", function(d) { return x(d[`${formattedDataKeys[measureIndex]}`]); })
               .attr("cy", function(d) { return y(d.firstMeas); })
               .attr("r", "5")
               .style("fill", config.point_color)
